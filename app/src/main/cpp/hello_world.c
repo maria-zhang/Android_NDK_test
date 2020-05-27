@@ -12,12 +12,15 @@ void *threadFork(void *vargp)
     LOG_printf("printing from thread \n");
 
     pid_t result = fork();
+    if (result == 0) {
+        LOG_printf("hi im in the child");
+    }
     LOG_printf("result :%d \n", result);
 
     LOG_printf("pid: %d \n", getpid());
     LOG_printf(" Parent pid: %d \n", getppid());
 
-   // sleep(10000000);
+    //sleep(10000000);
 
     return NULL;
 }
