@@ -15,10 +15,10 @@ void *threadFork(void *vargp)
     if (result == 0) {
         LOG_printf("hi im in the child");
     }
-    LOG_printf("result :%d \n", result);
+    LOG_printf("Result from fork(): %d \n", result);
 
     LOG_printf("pid: %d \n", getpid());
-    LOG_printf(" Parent pid: %d \n", getppid());
+    LOG_printf("Parent pid: %d \n", getppid());
 
     //sleep(10000000);
 
@@ -31,13 +31,43 @@ Java_com_example_ndktest_MainActivity_helloWorld(
         jobject obj) {
 
     char text[] = "c string";
+    FILE *pipe_fp;
+    char buff[255];
 
     size_t pagesize = getpagesize();
     LOG_printf("System page size: %zu bytes \n", pagesize);
 
+    //if (( pipe_fp = popen("grep \"\\[stack\" /proc/self/maps", "r")) == NULL)
+    if (( pipe_fp = popen("grep stack /proc/self/maps", "r")) == NULL)
+    {
+        LOG_printf("error popen");
+    } else {
+        LOG_printf("reading results");
+        while(fgets(buff, 255, pipe_fp))
+        {
+            LOG_printf("grep results: %s", buff);
+        }
+        fclose(pipe_fp);
+    }
+
+    //second process
+    if (( pipe_fp = popen("grep stack /proc/self/maps", "r")) == NULL)
+    {
+        LOG_printf("error popen");
+    } else {
+        LOG_printf("reading results");
+        while(fgets(buff, 255, pipe_fp))
+        {
+            LOG_printf("grep results: %s", buff);
+        }
+        fclose(pipe_fp);
+    }
+
+    /*
     pthread_t thread_id;
     pthread_create(&thread_id, NULL, threadFork, NULL);
     pthread_join(thread_id, NULL);
+     */
 
     return (*env)->NewStringUTF(env, text);
 }
