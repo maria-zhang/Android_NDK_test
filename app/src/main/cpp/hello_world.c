@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <android/log.h>
 #include <pthread.h>
+#include <sys/time.h>
 
 #define  LOG_TAG    "debug"
 #define  LOG_printf(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
@@ -34,33 +35,20 @@ Java_com_example_ndktest_MainActivity_helloWorld(
     FILE *pipe_fp;
     char buff[255];
 
-    size_t pagesize = getpagesize();
-    LOG_printf("System page size: %zu bytes \n", pagesize);
+    //size_t pagesize = getpagesize();
+    //LOG_printf("System page size: %zu bytes \n", pagesize);
 
-    //if (( pipe_fp = popen("grep \"\\[stack\" /proc/self/maps", "r")) == NULL)
-    if (( pipe_fp = popen("grep stack /proc/self/maps", "r")) == NULL)
-    {
-        LOG_printf("error popen");
-    } else {
-        LOG_printf("reading results");
-        while(fgets(buff, 255, pipe_fp))
+    //print stack address range for 2 processes
+    for (int i = 0; i < 2; i++){
+        if (( pipe_fp = popen("grep \"\\[stack\" /proc/self/maps", "r")) == NULL)
         {
-            LOG_printf("grep results: %s", buff);
+            LOG_printf("error popen");
+        } else {
+            while (fgets(buff, 255, pipe_fp)) {
+                LOG_printf("grep results: %s", buff);
+            }
+            fclose(pipe_fp);
         }
-        fclose(pipe_fp);
-    }
-
-    //second process
-    if (( pipe_fp = popen("grep stack /proc/self/maps", "r")) == NULL)
-    {
-        LOG_printf("error popen");
-    } else {
-        LOG_printf("reading results");
-        while(fgets(buff, 255, pipe_fp))
-        {
-            LOG_printf("grep results: %s", buff);
-        }
-        fclose(pipe_fp);
     }
 
     /*
